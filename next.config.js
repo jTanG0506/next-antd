@@ -1,6 +1,8 @@
 /* eslint-disable */
 const withLess = require("@zeit/next-less");
+const withCSS = require("@zeit/next-css");
 const lessToJS = require("less-vars-to-js");
+const withPlugins = require("next-compose-plugins");
 const fs = require("fs");
 const path = require("path");
 
@@ -8,7 +10,15 @@ const themeVariables = lessToJS(
   fs.readFileSync(path.resolve(__dirname, "./styles/antOverrides.less"), "utf8")
 );
 
-module.exports = withLess({
+const cssConfig = {
+  cssModules: true,
+  cssLoaderOptions: {
+    importLoaders: 1,
+    localIdentName: "[local]___[hash:base64:5]",
+  },
+};
+
+const lessConfig = {
   lessLoaderOptions: {
     javascriptEnabled: true,
     modifyVars: themeVariables,
@@ -36,4 +46,9 @@ module.exports = withLess({
     }
     return config;
   },
-});
+};
+
+module.exports = withPlugins([
+  [withLess, lessConfig],
+  [withCSS, cssConfig],
+]);
